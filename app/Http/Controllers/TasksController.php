@@ -14,12 +14,16 @@ class TasksController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-         $tasks = Task::all();
-
-        return view('tasks.index', [
-            'tasks' => $tasks,
-        ]);
+    { if (\Auth::check()) {
+        $user = \Auth::user();
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+            
+           $data = [
+               'user' => $user,
+               'tasks' => $tasks,
+           ];
+           return view('tasks.index',$data);
+    }
     }
 
     /**
@@ -49,10 +53,16 @@ class TasksController extends Controller
             'content' => 'required|max:191',
         ]);
         
+        $request->user()->tasks()->create([
+            'status' => $request->status,
+            'content' => $request->content,
+        ]);
+
+        /*return back();
         $task = new Task;
         $task->status = $request->status;
         $task->content = $request->content;
-        $task->save();
+        $task->save();*/
 
         return redirect('/');
     }
@@ -66,10 +76,12 @@ class TasksController extends Controller
     public function show($id)
     {
         $task = Task::find($id);
-
-        return view('tasks.show', [
+        if ($task->user_id==\Auth::user()->id) {
+            return view('tasks.show', [
             'task' => $task,
         ]);
+        }
+        return redirect('/');
     }
 
     /**

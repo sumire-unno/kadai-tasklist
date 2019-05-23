@@ -18,10 +18,13 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-
-        return view('users.show', [
+        
+        if ($user->id==Auth::user()->id) {
+            return view('users.show', [
             'user' => $user,
-        ]);
+            ]);
+        }
+        return view('\welcome');
     }
     }
 }
