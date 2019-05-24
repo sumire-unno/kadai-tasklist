@@ -93,10 +93,13 @@ class TasksController extends Controller
     public function edit($id)
     {
         $task = Task::find($id);
-
+        
+        if (\Auth::id() === $task->user_id) {
         return view('tasks.edit', [
             'task' => $task,
         ]);
+        }
+        return redirect('/');
     }
 
     /**
@@ -112,12 +115,14 @@ class TasksController extends Controller
             'status' => 'required|max:10',   // 追加
             'content' => 'required|max:191',
         ]);
-        
+    
         $task = Task::find($id);
+        
+    if (\Auth::id() === $task->user_id) {
         $task->status = $request->status;
         $task->content = $request->content;
         $task->save();
-
+    }
         return redirect('/');
     }
 
@@ -130,8 +135,10 @@ class TasksController extends Controller
     public function destroy($id)
     {
         $task = Task::find($id);
+        
+    if (\Auth::id() === $task->user_id) {
         $task->delete();
-
-        return redirect('/');
+    }
+       return redirect('/');
     }
 }
